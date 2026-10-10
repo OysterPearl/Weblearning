@@ -1,0 +1,28 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# 环境变量
+.env
+
+# 数据
+data/
+*.db
+*.sqlite3
+
+# 视频
+*.mp4
+*.avi
+*.mov
+
+# 编辑器
+.vscode/
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>首页</title>
+</head>
+<body>
+  <h1 id="welcome">欢迎登录</h1>
+  <p id="info"></p>
+  <button onclick="logout()">退出登录</button>
+
+  <script>
+    const userStr = localStorage.getItem('user');
+
+    if (!userStr) {
+      // 没登录，踢回登录页
+      window.location.href = 'index.html';
+    } else {
+      const user = JSON.parse(userStr);
+      document.getElementById('welcome').innerText = `欢迎登录，${user.username}`;
+      document.getElementById('info').innerText = `角色：${user.role}`;
+    }
+
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
