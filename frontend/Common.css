@@ -503,6 +503,139 @@ tbody tr:last-child td { border-bottom: none; }
 .form-msg.success { color: #1a7f37; }
 .form-msg.error { color: var(--red); }
 
+/* ---------------- 答题 ---------------- */
+
+.quiz-progress {
+  margin: 0 0 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quiz-progress.all-done {
+  background: #e7f5ec;
+  color: #1a7f37;
+}
+
+.quiz-question {
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fcfcfd;
+}
+
+.quiz-stem {
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.quiz-option:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+
+/* 选中态。:has() 在现在的 Chrome/Edge/Firefox 都支持；
+   万一不支持，单选框本身还是能看到选中状态，不影响作答。 */
+.quiz-option:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+.quiz-option input {
+  margin-top: 4px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+/* ---------------- 交卷结果 ---------------- */
+
+.result-summary {
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  text-align: center;
+}
+
+.result-score {
+  color: var(--accent-dark);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.result-score small {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result-desc {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.result-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-item {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.result-item.correct {
+  border-left-color: #1a7f37;
+  background: #f4fbf6;
+}
+
+.result-item.wrong {
+  border-left-color: var(--red);
+  background: #fef7f7;
+}
+
+.result-stem {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.result-line {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.result-item.correct .result-line { color: #1a7f37; }
+.result-item.wrong .result-line { color: var(--red-dark); }
+
 @media (max-width: 560px) {
   .topbar-inner { height: auto; padding: 12px 16px; flex-wrap: wrap; }
   .container { padding: 18px 16px 40px; }

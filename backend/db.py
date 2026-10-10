@@ -30,6 +30,9 @@ OPTION_LETTERS = ["A", "B", "C", "D"]
 
 PBKDF2_ITERATIONS = 260_000
 
+# 每次答题最多抽多少道题。题库不足这个数就把题库整个抽出来。
+QUIZ_SIZE = 10
+
 # ---------------------------------------------------------------------------
 # 初始数据。只在对应的表还是空的时候才写入。
 # ---------------------------------------------------------------------------
@@ -116,6 +119,28 @@ CREATE TABLE IF NOT EXISTS question (
     answer     TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+
+-- 每次交卷一行。total / correct / score 是交卷那一刻算好写进来的**快照**，
+-- 以后管理员改了题库，历史成绩也不会跟着变。
+CREATE TABLE IF NOT EXISTS exam_record (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    total      INTEGER NOT NULL,
+    correct    INTEGER NOT NULL,
+    score      INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+-- 每次交卷里每道题的作答明细，用于逐题回顾。
+-- ON DELETE CASCADE：删掉一道题会连带删掉它的作答明细（历史总分不受影响，总分是快照）。
+CREATE TABLE IF NOT EXISTS answer_detail (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id     INTEGER NOT NULL REFERENCES exam_record(id) ON DELETE CASCADE,
+    question_id INTEGER NOT NULL REFERENCES question(id) ON DELETE CASCADE,
+    chosen      TEXT,
+    is_correct  INTEGER NOT NULL,
+    created_at  TEXT NOT NULL
+);
 """
 
 
@@ -140,6 +165,9 @@ def get_conn():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    # SQLite 默认不校验外键，而且这个开关是**每个连接**都要单独设的，
+    # 漏掉的话 answer_detail 上的 ON DELETE CASCADE 不会生效。
+    conn.execute("PRAGMA foreign_keys = ON")
     try:
         yield conn
         conn.commit()

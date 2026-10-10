@@ -104,8 +104,3 @@ function fillUser(user) {
     el.textContent = ROLE_LABEL[user.role] || user.role;
   });
 }
-
-/** 本轮只做了界面骨架，按钮还没有真实逻辑，统一给个提示。 */
-function notReady(feature) {
-  alert(feature + '功能正在开发中，本轮先完成界面部分。');
-}

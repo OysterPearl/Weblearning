@@ -2,8 +2,8 @@
 
 一个面向共青团知识学习的答题系统。学生登录后答题，管理员登录后维护题库。
 
-> **当前状态**：登录、角色区分、管理员录题（增删改查）已经跑通并落到数据库。
-> **学生端答题功能尚未实现**——详情见下面的[功能现状](#功能现状)。
+> **当前状态**：登录、角色区分、管理员录题（增删改查）、学生答题（抽题 / 判分 / 成绩记录）
+> 都已跑通并落到数据库——详情见下面的[功能现状](#功能现状)。
 
 ---
 
@@ -35,6 +35,7 @@ Weblearning/
 │   ├── Login.html          【入口】登录页
 │   ├── Home.html           路由页：登录成功后按角色分发
 │   ├── Student.html        学生端
+│   ├── Student.js          学生端逻辑（抽题、作答、交卷、成绩回顾）
 │   ├── Admin.html          管理员端
 │   ├── Admin.js            管理员端逻辑（题库增删改查）
 │   ├── Common.css          全部页面共用的样式
@@ -104,17 +105,25 @@ venv/Scripts/python.exe -m uvicorn main:app --reload
 - 删除题目（有二次确认）
 - 校验：题干必填、选项 A/B 必填（C/D 可留空）、答案必须在已填选项内、拒绝重复题干
 
+**学生端（全部真实落库）**
+
+- 每次随机抽一套题（上限 10 道，题库不足就全抽），不限时
+- 逐题作答，实时显示「已作答 X / N 道」
+- 交卷判分，出分后**逐题回顾**：你选了什么、正确答案是什么、对错
+- 成绩记入数据库，统计卡片和历史成绩都是真实数据、每次交卷后自动刷新
+
+> 判分在**后端**做：发给学生端的题目里**不含答案**，交卷后由后端比对。
+> 否则按个 F12 就能看到全部正确答案，答题就没意义了。
+
 ### ❌ 未完成（重要）
 
-- **学生端答题与判分完全没有实现。** `Student.html` 上的「开始答题」按钮只会弹一个「开发中」的提示，
-  没有抽题、作答、提交、判分中的任何一步。
-- **所有统计数字都是假的。** 学生端的「待答题数 / 平均分 / 正确率」和历史成绩表格、
-  管理员端的「学生数 / 提交次数 / 待批阅」都是写死的示例数据。
-  （管理员端的「题库总数」是真实的。）
+- **统计数字还有假的。** 学生端四张卡片和历史成绩已经是真实数据；
+  但**管理员端的「学生数 / 提交次数 / 待批阅」仍是写死的示例数字**——
+  学生的答题记录其实已经存进 `exam_record` 表了，只是这三张卡片还没接上去。
 - **接口没有服务端身份校验。** 任何人都能直接调 `POST/PUT/DELETE /api/questions` 改题库，
-  前端的角色隔离只是跳转控制，改一下 `localStorage` 就能绕过。
+  也能伪造学号交卷。前端的角色隔离只是跳转控制，改一下 `localStorage` 就能绕过。
   **本地测试可以，真要部署必须先在服务端补上鉴权。**
-- 只支持单选题。
+- 只支持单选题，没有错题本，管理员看不了全班成绩，答题不限时。
 
 ---
 
@@ -128,6 +137,7 @@ venv/Scripts/python.exe -m uvicorn main:app --reload
 | `1001` | 用户名或密码错误 |
 | `1002` | 字段校验失败（`message` 里有具体原因） |
 | `1003` | 题目不存在（可能已被删除） |
+| `1004` | 用户不存在 |
 | `-1` | 连不上后端（前端 `Common.js` 里兜底返回的） |
 
 ### `POST /api/login`
@@ -169,6 +179,59 @@ venv/Scripts/python.exe -m uvicorn main:app --reload
 成功：{ "code": 0, "data": { "id": 7 } }
 ```
 
+### `GET /api/quiz`
+
+随机抽一套题给学生。**返回里没有 `answer` 字段**——判分在后端做，前端拿不到答案。
+
+```json
+{ "code": 0, "data": {
+    "total": 6,
+    "questions": [
+      { "id": 5, "type": "single", "stem": "五四运动爆发于哪一年？",
+        "options": { "A": "1915年", "B": "1919年", "C": "1921年", "D": "1922年" } }
+    ] } }
+```
+
+### `POST /api/quiz/submit`
+
+```json
+请求：{ "user_id": 1, "answers": { "5": "B", "7": "", "9": "A" } }
+返回：{ "code": 0, "data": {
+          "exam_id": 4, "total": 3, "correct": 2, "score": 67,
+          "details": [{ "question_id": 5, "stem": "…", "chosen": "B",
+                        "answer": "B", "is_correct": true }] } }
+```
+
+`answers` 的 key 是题目 id，值是你选的字母。**没作答的题要传空字符串，但不能少传这个 key**——
+后端会校验题数（见下）。不在该题选项里的值（含空字符串）一律按「未作答」处理，不算错也不算报错。
+
+交卷后会返回正确答案，用于逐题回顾——这时候题已经答完了，返回是安全的。
+
+> **防刷分**：提交的题数必须正好等于一次抽题的题数（`min(10, 题库总数)`）。
+> 少了这条，只提交一道题并且答对就能拿 100 分，成绩记录就没意义了。
+
+### `GET /api/students/{user_id}/stats`
+
+学生端的统计卡片。
+
+```json
+{ "code": 0, "data": {
+    "exam_count": 5, "avg_score": 53, "best_score": 100,
+    "accuracy": 53, "question_total": 6 } }
+```
+
+`accuracy` 是**累计答对 / 累计作答**，不是各次正确率的平均。
+
+### `GET /api/students/{user_id}/exams`
+
+历史成绩，按时间倒序（时间相同按 id 兜底）。
+
+```json
+{ "code": 0, "data": [
+    { "id": 4, "total": 6, "correct": 6, "score": 100,
+      "created_at": "2026-10-10T17:13:29+08:00" } ] }
+```
+
 > 交互式接口文档：后端跑起来后访问 <http://127.0.0.1:8000/docs>
 
 ---
@@ -201,8 +264,37 @@ CREATE TABLE question (
 );
 ```
 
+```sql
+-- 每次交卷一行。total / correct / score 是交卷那一刻算好的**快照**，
+-- 以后管理员改了题库，历史成绩也不会跟着变。
+CREATE TABLE exam_record (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    total      INTEGER NOT NULL,
+    correct    INTEGER NOT NULL,
+    score      INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+-- 每道题的作答明细，用于逐题回顾
+CREATE TABLE answer_detail (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id     INTEGER NOT NULL REFERENCES exam_record(id) ON DELETE CASCADE,
+    question_id INTEGER NOT NULL REFERENCES question(id) ON DELETE CASCADE,
+    chosen      TEXT,              -- 学生选的字母；没作答存 NULL
+    is_correct  INTEGER NOT NULL,  -- 0 / 1
+    created_at  TEXT NOT NULL
+);
+```
+
 选项拆成 `option_a`~`option_d` 四列而不是存一段 JSON，这样能用 SQL 直接查。
 `answer` 用 TEXT，以后加多选题存 `"AC"` 不用改表结构。
+
+外键开了 `PRAGMA foreign_keys = ON`（SQLite 默认不校验，而且**每个连接**都要单独设），
+删题或删用户时会级联删掉对应的作答明细。
+
+> ⚠️ **删题会连带删掉它的作答明细。** 历史成绩的总分不受影响（总分是快照），
+> 但如果之后要做「错题回顾」，被删掉的那道题的明细就没了。
 
 ### 重置数据库
 
@@ -276,8 +368,12 @@ Python 3.12 弃用、3.14 移除了 `sqlite3.version`。用 `sqlite3.sqlite_vers
 
 ## 待办
 
-- [ ] 学生端答题：抽题、作答、提交
-- [ ] 判分与成绩记录（需要新增一张 `answer_record` 表）
-- [ ] 把两端写死的统计数字换成真实数据
+- [x] 学生端答题：抽题、作答、提交
+- [x] 判分与成绩记录（`exam_record` + `answer_detail` 两张表）
+- [x] 学生端的统计与历史成绩接真实数据
+- [ ] 管理员端「学生数 / 提交次数 / 待批阅」三张卡片接真实数据
+- [ ] 错题本 / 错题回顾页面
+- [ ] 管理员查看全班成绩
 - [ ] 接口的服务端身份校验（**部署前必须做**）
 - [ ] 多选题 / 判断题
+- [ ] 限时答题

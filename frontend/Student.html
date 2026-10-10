@@ -34,37 +34,54 @@
 
     <section class="stat-grid">
       <div class="stat-card">
-        <div class="stat-label">待答题数</div>
-        <div class="stat-value">10<small> 题</small></div>
+        <div class="stat-label">题库总数</div>
+        <div class="stat-value"><span id="stat-question-total">—</span><small> 题</small></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">已完成</div>
-        <div class="stat-value">3<small> 套</small></div>
+        <div class="stat-label">已答次数</div>
+        <div class="stat-value"><span id="stat-exam-count">—</span><small> 次</small></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">平均分</div>
-        <div class="stat-value">86</div>
+        <div class="stat-value"><span id="stat-avg-score">—</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">正确率</div>
-        <div class="stat-value">83<small>%</small></div>
+        <div class="stat-value"><span id="stat-accuracy">—</span><small>%</small></div>
       </div>
     </section>
-    <p class="hint">以上为示例数据，接入后端接口后会换成真实统计。</p>
 
     <section class="panel">
       <div class="panel-head">
         <div>
-          <h2>开始答题</h2>
-          <p class="panel-desc">随机抽取 10 道单选题，限时 15 分钟，交卷后立即出分。</p>
+          <h2>答题</h2>
+          <p class="panel-desc">每次随机抽取最多 10 道单选题，交卷后立即出分，不限时间。</p>
         </div>
-        <button class="btn btn-primary" onclick="notReady('答题')">开始答题</button>
+        <button class="btn btn-primary" id="start-btn">开始答题</button>
       </div>
       <div class="panel-body">
-        <div class="placeholder">
-          <strong>答题区</strong>
-          <p>这里将显示题干、选项和交卷按钮。</p>
-          <p>本轮只完成界面骨架，答题与判分逻辑留到下一轮。</p>
+        <!-- 未开始时显示 -->
+        <div class="placeholder" id="quiz-placeholder">
+          <strong>准备好了就开始</strong>
+          <p id="quiz-placeholder-msg">点右上角「开始答题」，随机抽一套题。</p>
+        </div>
+
+        <!-- 答题中显示 -->
+        <div class="hidden" id="quiz-area">
+          <p class="quiz-progress" id="quiz-progress">已作答 0 / 0 道</p>
+          <div id="question-list"></div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="submit-btn">交卷</button>
+          </div>
+        </div>
+
+        <!-- 交卷后显示 -->
+        <div class="hidden" id="result-area">
+          <div class="result-summary" id="result-summary"></div>
+          <div class="result-details" id="result-details"></div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="restart-btn">重新答题</button>
+          </div>
         </div>
       </div>
     </section>
@@ -73,7 +90,7 @@
       <div class="panel-head">
         <div>
           <h2>历史成绩</h2>
-          <p class="panel-desc">示例数据。</p>
+          <p class="panel-desc">你每次交卷的成绩，最新的排在最前。</p>
         </div>
       </div>
       <div class="table-wrap">
@@ -87,37 +104,12 @@
               <th>状态</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>2026-09-28</td>
-              <td>10</td>
-              <td>90</td>
-              <td>90%</td>
-              <td><span class="tag">已完成</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-14</td>
-              <td>10</td>
-              <td>80</td>
-              <td>80%</td>
-              <td><span class="tag">已完成</span></td>
-            </tr>
-            <tr>
-              <td>2026-08-31</td>
-              <td>10</td>
-              <td>88</td>
-              <td>88%</td>
-              <td><span class="tag">已完成</span></td>
-            </tr>
-          </tbody>
+          <tbody id="history-tbody"></tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <script>
-    const user = getUser();
-    if (user) fillUser(user);
-  </script>
+  <script src="Student.js"></script>
 </body>
 </html>
