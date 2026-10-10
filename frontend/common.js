@@ -65,14 +65,31 @@ function logout() {
   window.location.replace('index.html');
 }
 
-/** fetch 封装：自动拼 API_BASE、带上 JSON 请求头并解析响应。 */
+/**
+ * fetch 封装：自动拼 API_BASE、带上 JSON 请求头并解析响应。
+ *
+ * 后端没启动时 fetch 会直接抛异常，这里统一兜住并转成 {code: -1}，
+ * 这样各页面只判断 code 一处，就能覆盖「服务连不上」这个最常见的情况。
+ * 返回值形状和 /api/login 一致：成功 code === 0，失败带 message。
+ */
 async function api(path, options = {}) {
   const { headers, ...rest } = options;
-  const res = await fetch(API_BASE + path, {
-    headers: { 'Content-Type': 'application/json', ...headers },
-    ...rest,
-  });
-  return res.json();
+
+  let res;
+  try {
+    res = await fetch(API_BASE + path, {
+      headers: { 'Content-Type': 'application/json', ...headers },
+      ...rest,
+    });
+  } catch (e) {
+    return { code: -1, message: `无法连接后端服务（${API_BASE}），请确认它已经启动。` };
+  }
+
+  try {
+    return await res.json();
+  } catch (e) {
+    return { code: -1, message: `后端返回了非 JSON 内容（HTTP ${res.status}）。` };
+  }
 }
 
 /**

@@ -33,17 +33,18 @@
     </div>
 
     <div class="notice">
-      <span class="notice-icon">⚠️</span>
+      <span class="notice-icon">ℹ️</span>
       <span>
-        当前为<strong>界面骨架</strong>：卡片数字和下方表格都是写死的示例，
-        表单「新增题目」按钮也还没有接后端，点击只会提示开发中。
+        <strong>录题功能已接通</strong>：下方题库列表和「题库总数」都是真实数据，
+        新增 / 编辑 / 删除会立刻写进 <code>backend/data/questions.json</code>，重启后端也不会丢。
+        但「学生数 / 提交次数 / 待批阅」三张卡片仍是示例数字——要等学生端答题做完才会有真实数据。
       </span>
     </div>
 
     <section class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">题库总数</div>
-        <div class="stat-value">6<small> 题</small></div>
+        <div class="stat-value"><span id="question-count">—</span><small> 题</small></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">学生数</div>
@@ -58,17 +59,17 @@
         <div class="stat-value">0<small> 份</small></div>
       </div>
     </section>
-    <p class="hint">以上为示例数据，接入后端接口后会换成真实统计。</p>
+    <p class="hint">除「题库总数」外，其余三张卡片为示例数据。</p>
 
-    <section class="panel">
+    <section class="panel" id="form-panel">
       <div class="panel-head">
         <div>
-          <h2>新增题目</h2>
-          <p class="panel-desc">目前只支持单选题。</p>
+          <h2 id="form-title">新增题目</h2>
+          <p class="panel-desc">目前只支持单选题。选项 C、D 可以留空，这样也能录只有两个选项的题。</p>
         </div>
       </div>
       <div class="panel-body">
-        <div class="form-grid">
+        <form id="question-form" class="form-grid" autocomplete="off">
           <div class="field col-span">
             <label for="stem">题干</label>
             <textarea id="stem" placeholder="例如：中国共产主义青年团成立于哪一年？"></textarea>
@@ -83,11 +84,11 @@
           </div>
           <div class="field">
             <label for="opt-c">选项 C</label>
-            <input id="opt-c" placeholder="选项内容">
+            <input id="opt-c" placeholder="可留空">
           </div>
           <div class="field">
             <label for="opt-d">选项 D</label>
-            <input id="opt-d" placeholder="选项内容">
+            <input id="opt-d" placeholder="可留空">
           </div>
           <div class="field">
             <label for="answer">正确答案</label>
@@ -99,9 +100,13 @@
             </select>
           </div>
           <div class="field col-span">
-            <button class="btn btn-primary" onclick="notReady('新增题目')">保存题目</button>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="save-btn">保存题目</button>
+              <button type="button" class="btn hidden" id="cancel-edit-btn">取消编辑</button>
+            </div>
           </div>
-        </div>
+        </form>
+        <p class="form-msg" id="form-msg"></p>
       </div>
     </section>
 
@@ -109,9 +114,8 @@
       <div class="panel-head">
         <div>
           <h2>题库列表</h2>
-          <p class="panel-desc">对应后端 QUESTIONS 里的 6 道测试题，此处为静态示例。</p>
+          <p class="panel-desc">来自后端的真实题库，新录的题排在最前。</p>
         </div>
-        <button class="btn" onclick="notReady('题库管理')">题库管理</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -124,58 +128,15 @@
               <th>操作</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td><span class="tag">单选</span></td>
-              <td>中国共产主义青年团成立于哪一年？</td>
-              <td>C</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td><span class="tag">单选</span></td>
-              <td>中国共产主义青年团的团歌是？</td>
-              <td>B</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td><span class="tag">单选</span></td>
-              <td>申请加入中国共产主义青年团的年龄要求是？</td>
-              <td>B</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td><span class="tag">单选</span></td>
-              <td>团旗左上角黄色圆圈环绕着五角星，其中的圆圈代表什么？</td>
-              <td>B</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td><span class="tag">单选</span></td>
-              <td>五四运动爆发于哪一年？</td>
-              <td>B</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-            <tr>
-              <td>6</td>
-              <td><span class="tag">单选</span></td>
-              <td>团员在几人以上的单位，可以建立团支部？</td>
-              <td>A</td>
-              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
-            </tr>
-          </tbody>
+          <tbody id="question-tbody"></tbody>
         </table>
+      </div>
+      <div class="panel-body">
+        <p class="form-msg" id="list-msg"></p>
       </div>
     </section>
   </main>
 
-  <script>
-    const user = getUser();
-    if (user) fillUser(user);
-  </script>
+  <script src="admin.js"></script>
 </body>
 </html>
