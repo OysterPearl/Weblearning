@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>管理员端 —— 团青课堂</title>
+  <link rel="stylesheet" href="common.css">
+  <script src="common.js"></script>
+  <script>
+    // 在 head 里就把关。未登录会被送回登录页；学生误入这里会被送回学生端。
+    requireLogin('admin');
+  </script>
+</head>
+<body class="role-admin">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="emblem">团</span>
+        <span>团青课堂</span>
+        <span class="role-tag" data-role-label>管理员</span>
+      </div>
+      <div class="user-area">
+        <span>欢迎，<strong data-user-name>管理员</strong></span>
+        <button class="btn" onclick="logout()">退出登录</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-head">
+      <h1>欢迎回来，<span data-user-name>管理员</span></h1>
+      <p>在这里维护题库、查看学生的答题情况。</p>
+    </div>
+
+    <div class="notice">
+      <span class="notice-icon">⚠️</span>
+      <span>
+        当前为<strong>界面骨架</strong>：卡片数字和下方表格都是写死的示例，
+        表单「新增题目」按钮也还没有接后端，点击只会提示开发中。
+      </span>
+    </div>
+
+    <section class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">题库总数</div>
+        <div class="stat-value">6<small> 题</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">学生数</div>
+        <div class="stat-value">1<small> 人</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">提交次数</div>
+        <div class="stat-value">3<small> 次</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">待批阅</div>
+        <div class="stat-value">0<small> 份</small></div>
+      </div>
+    </section>
+    <p class="hint">以上为示例数据，接入后端接口后会换成真实统计。</p>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>新增题目</h2>
+          <p class="panel-desc">目前只支持单选题。</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="field col-span">
+            <label for="stem">题干</label>
+            <textarea id="stem" placeholder="例如：中国共产主义青年团成立于哪一年？"></textarea>
+          </div>
+          <div class="field">
+            <label for="opt-a">选项 A</label>
+            <input id="opt-a" placeholder="选项内容">
+          </div>
+          <div class="field">
+            <label for="opt-b">选项 B</label>
+            <input id="opt-b" placeholder="选项内容">
+          </div>
+          <div class="field">
+            <label for="opt-c">选项 C</label>
+            <input id="opt-c" placeholder="选项内容">
+          </div>
+          <div class="field">
+            <label for="opt-d">选项 D</label>
+            <input id="opt-d" placeholder="选项内容">
+          </div>
+          <div class="field">
+            <label for="answer">正确答案</label>
+            <select id="answer">
+              <option>A</option>
+              <option>B</option>
+              <option>C</option>
+              <option>D</option>
+            </select>
+          </div>
+          <div class="field col-span">
+            <button class="btn btn-primary" onclick="notReady('新增题目')">保存题目</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>题库列表</h2>
+          <p class="panel-desc">对应后端 QUESTIONS 里的 6 道测试题，此处为静态示例。</p>
+        </div>
+        <button class="btn" onclick="notReady('题库管理')">题库管理</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>编号</th>
+              <th>题型</th>
+              <th>题干</th>
+              <th>正确答案</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span class="tag">单选</span></td>
+              <td>中国共产主义青年团成立于哪一年？</td>
+              <td>C</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span class="tag">单选</span></td>
+              <td>中国共产主义青年团的团歌是？</td>
+              <td>B</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span class="tag">单选</span></td>
+              <td>申请加入中国共产主义青年团的年龄要求是？</td>
+              <td>B</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="tag">单选</span></td>
+              <td>团旗左上角黄色圆圈环绕着五角星，其中的圆圈代表什么？</td>
+              <td>B</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="tag">单选</span></td>
+              <td>五四运动爆发于哪一年？</td>
+              <td>B</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="tag">单选</span></td>
+              <td>团员在几人以上的单位，可以建立团支部？</td>
+              <td>A</td>
+              <td><button class="btn" onclick="notReady('编辑题目')">编辑</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const user = getUser();
+    if (user) fillUser(user);
+  </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>学生端 —— 团青课堂</title>
+  <link rel="stylesheet" href="common.css">
+  <script src="common.js"></script>
+  <script>
+    // 在 head 里就把关。未登录会被送回登录页；管理员误入这里会被送回管理员端。
+    requireLogin('student');
+  </script>
+</head>
+<body class="role-student">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="emblem">团</span>
+        <span>团青课堂</span>
+        <span class="role-tag" data-role-label>学生</span>
+      </div>
+      <div class="user-area">
+        <span>欢迎，<strong data-user-name>同学</strong></span>
+        <button class="btn" onclick="logout()">退出登录</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-head">
+      <h1>欢迎回来，<span data-user-name>同学</span></h1>
+      <p>今天也来温习一遍团的知识吧。</p>
+    </div>
+
+    <section class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">待答题数</div>
+        <div class="stat-value">10<small> 题</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已完成</div>
+        <div class="stat-value">3<small> 套</small></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">平均分</div>
+        <div class="stat-value">86</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">正确率</div>
+        <div class="stat-value">83<small>%</small></div>
+      </div>
+    </section>
+    <p class="hint">以上为示例数据，接入后端接口后会换成真实统计。</p>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>开始答题</h2>
+          <p class="panel-desc">随机抽取 10 道单选题，限时 15 分钟，交卷后立即出分。</p>
+        </div>
+        <button class="btn btn-primary" onclick="notReady('答题')">开始答题</button>
+      </div>
+      <div class="panel-body">
+        <div class="placeholder">
+          <strong>答题区</strong>
+          <p>这里将显示题干、选项和交卷按钮。</p>
+          <p>本轮只完成界面骨架，答题与判分逻辑留到下一轮。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>历史成绩</h2>
+          <p class="panel-desc">示例数据。</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>答题时间</th>
+              <th>题量</th>
+              <th>得分</th>
+              <th>正确率</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-09-28</td>
+              <td>10</td>
+              <td>90</td>
+              <td>90%</td>
+              <td><span class="tag">已完成</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-14</td>
+              <td>10</td>
+              <td>80</td>
+              <td>80%</td>
+              <td><span class="tag">已完成</span></td>
+            </tr>
+            <tr>
+              <td>2026-08-31</td>
+              <td>10</td>
+              <td>88</td>
+              <td>88%</td>
+              <td><span class="tag">已完成</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const user = getUser();
+    if (user) fillUser(user);
+  </script>
+</body>
+</html>

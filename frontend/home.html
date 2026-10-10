@@ -1,29 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>正在进入 —— 团青课堂</title>
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
-  <h1 id="welcome">欢迎登录</h1>
-  <p id="info"></p>
-  <button onclick="logout()">退出登录</button>
+  <!-- 纯路由页：登录成功后 index.html 依旧跳到这里，再由这里按角色分发到对应端。 -->
+  <div class="center-screen">
+    <div class="loading-card">
+      <div class="spinner" id="spinner"></div>
+      <p id="tip">正在进入…</p>
+      <p id="fallback" class="hidden">
+        <a class="btn btn-primary" href="index.html">返回登录</a>
+      </p>
+    </div>
+  </div>
 
+  <script src="common.js"></script>
   <script>
-    const userStr = localStorage.getItem('user');
+    const user = getUser();
 
-    if (!userStr) {
-      // 没登录，踢回登录页
-      window.location.href = 'index.html';
+    if (!user) {
+      window.location.replace('index.html');
+    } else if (ROLE_HOME[user.role]) {
+      window.location.replace(ROLE_HOME[user.role]);
     } else {
-      const user = JSON.parse(userStr);
-      document.getElementById('welcome').innerText = `欢迎登录，${user.username}`;
-      document.getElementById('info').innerText = `角色：${user.role}`;
-    }
-
-    function logout() {
-      localStorage.removeItem('user');
-      window.location.href = 'index.html';
+      // 角色既不是 student 也不是 admin：停在这里给个出口，
+      // 否则任何跳转都会绕回来，用户会卡在闪烁的页面上。
+      document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('tip').textContent = '无法识别的角色：' + user.role;
+      document.getElementById('fallback').classList.remove('hidden');
     }
   </script>
 </body>

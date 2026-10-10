@@ -1,15 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>登录</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 —— 团青课堂</title>
+  <!-- 只引入共用样式让登录页和后面几页风格一致，登录逻辑保持原样 -->
+  <link rel="stylesheet" href="common.css">
 </head>
 <body>
-  <h2>登录</h2>
-  <input id="username" placeholder="用户名">
-  <input id="password" placeholder="密码" type="password">
-  <button onclick="login()">登录</button>
-  <p id="result"></p>
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="brand">
+        <span class="emblem">团</span>
+        <span>团青课堂</span>
+      </div>
+      <p class="login-sub">答题系统</p>
+
+      <div class="field">
+        <label for="username">用户名</label>
+        <input id="username" placeholder="请输入用户名">
+      </div>
+      <div class="field">
+        <label for="password">密码</label>
+        <input id="password" placeholder="请输入密码" type="password">
+      </div>
+
+      <button class="btn btn-primary btn-block" onclick="login()">登录</button>
+      <p id="result" class="login-error"></p>
+
+      <p class="login-tip">
+        测试账号：<br>
+        学生 <code>student01</code> / <code>123456</code><br>
+        管理员 <code>admin</code> / <code>admin123</code>
+      </p>
+    </div>
+  </div>
 
   <script>
     async function login() {
