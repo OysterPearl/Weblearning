@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>管理员端 —— 团青课堂</title>
-  <link rel="stylesheet" href="common.css">
-  <script src="common.js"></script>
+  <link rel="stylesheet" href="Common.css">
+  <script src="Common.js"></script>
   <script>
     // 在 head 里就把关。未登录会被送回登录页；学生误入这里会被送回学生端。
     requireLogin('admin');
@@ -36,7 +36,7 @@
       <span class="notice-icon">ℹ️</span>
       <span>
         <strong>录题功能已接通</strong>：下方题库列表和「题库总数」都是真实数据，
-        新增 / 编辑 / 删除会立刻写进 <code>backend/data/questions.json</code>，重启后端也不会丢。
+        新增 / 编辑 / 删除会立刻写进数据库 <code>backend/data/app.db</code>，重启后端也不会丢。
         但「学生数 / 提交次数 / 待批阅」三张卡片仍是示例数字——要等学生端答题做完才会有真实数据。
       </span>
     </div>
@@ -137,6 +137,6 @@
     </section>
   </main>
 
-  <script src="admin.js"></script>
+  <script src="Admin.js"></script>
 </body>
 </html>

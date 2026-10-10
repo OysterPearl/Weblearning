@@ -1,7 +1,7 @@
 /* 管理员端 —— 题库录题（增删改查）
  *
- * 依赖 common.js 提供的：requireLogin / getUser / fillUser / logout / api。
- * 页面的鉴权在 admin.html 的 <head> 里已经做过了，这里只管录题逻辑。
+ * 依赖 Common.js 提供的：requireLogin / getUser / fillUser / logout / api。
+ * 页面的鉴权在 Admin.html 的 <head> 里已经做过了，这里只管录题逻辑。
  */
 
 // 正在编辑的题目 id。null 表示「新增」模式。

@@ -7,10 +7,10 @@
 
 const API_BASE = 'http://127.0.0.1:8000';
 
-// 各角色的落地页。home.html 的路由和越权回跳都查这张表。
+// 各角色的落地页。Home.html 的路由和越权回跳都查这张表。
 const ROLE_HOME = {
-  student: 'student.html',
-  admin: 'admin.html',
+  student: 'Student.html',
+  admin: 'Admin.html',
 };
 
 const ROLE_LABEL = {
@@ -32,7 +32,7 @@ function getUser() {
 
 /**
  * 页面入口守卫：未登录回登录页；已登录但角色不符，则送回他自己的页面
- * （学生手输 admin.html 会被弹回 student.html，反之亦然）。
+ * （学生手输 Admin.html 会被弹回 Student.html，反之亦然）。
  *
  * @param {'student'|'admin'} role 本页要求的角色
  * @returns {object|null} 通过校验时返回当前用户
@@ -41,7 +41,7 @@ function requireLogin(role) {
   const user = getUser();
 
   if (!user) {
-    window.location.replace('index.html');
+    window.location.replace('Login.html');
     return null;
   }
 
@@ -52,7 +52,7 @@ function requireLogin(role) {
     } else {
       // 角色对不上任何页面，清掉登录态重来，免得在两个页面之间来回跳成死循环
       localStorage.removeItem('user');
-      window.location.replace('index.html');
+      window.location.replace('Login.html');
     }
     return null;
   }
@@ -62,7 +62,7 @@ function requireLogin(role) {
 
 function logout() {
   localStorage.removeItem('user');
-  window.location.replace('index.html');
+  window.location.replace('Login.html');
 }
 
 /**

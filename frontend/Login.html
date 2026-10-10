@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>登录 —— 团青课堂</title>
   <!-- 只引入共用样式让登录页和后面几页风格一致，登录逻辑保持原样 -->
-  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="Common.css">
 </head>
 <body>
   <div class="login-screen">
@@ -50,7 +50,7 @@
       const data = await res.json();
       if (data.code === 0){
         localStorage.setItem('user', JSON.stringify(data.data));
-        window.location.href = "home.html";
+        window.location.href = "Home.html";
       }else{
         document.getElementById('result').innerText = data.message;
       }

@@ -4,26 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>正在进入 —— 团青课堂</title>
-  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="Common.css">
 </head>
 <body>
-  <!-- 纯路由页：登录成功后 index.html 依旧跳到这里，再由这里按角色分发到对应端。 -->
+  <!-- 纯路由页：登录成功后 Login.html 依旧跳到这里，再由这里按角色分发到对应端。 -->
   <div class="center-screen">
     <div class="loading-card">
       <div class="spinner" id="spinner"></div>
       <p id="tip">正在进入…</p>
       <p id="fallback" class="hidden">
-        <a class="btn btn-primary" href="index.html">返回登录</a>
+        <a class="btn btn-primary" href="Login.html">返回登录</a>
       </p>
     </div>
   </div>
 
-  <script src="common.js"></script>
+  <script src="Common.js"></script>
   <script>
     const user = getUser();
 
     if (!user) {
-      window.location.replace('index.html');
+      window.location.replace('Login.html');
     } else if (ROLE_HOME[user.role]) {
       window.location.replace(ROLE_HOME[user.role]);
     } else {
