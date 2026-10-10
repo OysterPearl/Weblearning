@@ -1,8 +1,10 @@
 import sqlite3
+import secrets
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from fastapi import Header
 
 import db
 
@@ -14,6 +16,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+#定义TOKENS字典
+TOKENS = {}
+
+print("=== main.py 已加载 ===")
 
 # 建表 + 首次播种。可以重复执行，已有数据不会被动。
 db.init_db()
@@ -41,6 +48,18 @@ class SubmitIn(BaseModel):
     user_id: int
     # {"题目id": "选项字母"}，没作答就传空字符串，但**不能少传这个 key**
     answers: dict[str, str] = Field(default_factory=dict)
+
+
+def get_current_user(authorization: str = Header(None)):
+    print("=== get_current_user ===")
+    print("authorization =", repr(authorization))
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.replace("Bearer ", "")
+    print("提取的 token =", repr(token))
+    print("TOKENS 里的 keys =", list(TOKENS.keys()))
+    print("查到的 user =", TOKENS.get(token))
+    return TOKENS.get(token)
 
 
 def _row_options(row):
@@ -150,10 +169,22 @@ def login(data: LoginIn):
     if user is None or not db.verify_password(data.password, user["password"]):
         return {"code": 1001, "message": "用户名或密码错误"}
 
+    #添加token登陆验证
+    token = secrets.token_hex(16)
+    TOKENS[token] = {
+        "id": user["id"],
+        "username": user["username"],
+        "role": user["role"],
+    }
+    print("=== 新 token 已存 ===")
+    print("token =", token)
+    print("TOKENS 现有数量 =", len(TOKENS))
+
     return {
         "code": 0,
         "data": {
             "id": user["id"],
+            "token": token,
             "username": user["username"],
             "role": user["role"],
         },
@@ -398,8 +429,18 @@ def submit_quiz(data: SubmitIn):
 
 
 @app.get("/api/students/{user_id}/stats")
-def student_stats(user_id: int):
+def student_stats(user_id: int, authorization: str = Header(None)):
     """学生端的统计卡片。"""
+    print("=== student_stats 被调用 ===")
+    #校验token
+    current_user = get_current_user(authorization)
+    if not current_user:
+        return {"code": 401, "message": "未登录"}
+
+    #判断权限
+    if current_user["id"] != user_id and current_user["role"] != "admin":
+        return {"code": 403, "message": "无权查看他人数据"}
+
     with db.get_conn() as conn:
         row = conn.execute(
             "SELECT COUNT(*)                      AS exam_count, "

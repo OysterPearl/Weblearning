@@ -62,6 +62,7 @@ function requireLogin(role) {
 
 function logout() {
   localStorage.removeItem('user');
+  localStorage.removeItem('token');
   window.location.replace('Login.html');
 }
 
@@ -74,11 +75,16 @@ function logout() {
  */
 async function api(path, options = {}) {
   const { headers, ...rest } = options;
+  const token = localStorage.getItem('token');
 
   let res;
   try {
     res = await fetch(API_BASE + path, {
-      headers: { 'Content-Type': 'application/json', ...headers },
+      headers:{
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (token || ''),
+        ...headers,
+      },
       ...rest,
     });
   } catch (e) {

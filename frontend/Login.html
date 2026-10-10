@@ -47,10 +47,15 @@
         body: JSON.stringify({username, password})
       });
 
-      const data = await res.json();
+      const data = await res.json();//拿取后端响应的解析后对象
       if (data.code === 0){
-        localStorage.setItem('user', JSON.stringify(data.data));
-        window.location.href = "Home.html";
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user', JSON.stringify({
+          id: data.data.id,
+          username: data.data.username,
+          role: data.data.role,
+        }));
+        window.location.href = "Home.html"; //中转到home.html
       }else{
         document.getElementById('result').innerText = data.message;
       }
